@@ -1,0 +1,57 @@
+/*
+Thank you for checking out our code! 
+This is the program that runs the Vesi Water Valve. 
+It will read the command transmitted by the Vesi Soil Module
+and will either open the solenoid 
+valve or keep it closed when prompted to do so.
+
+Please contact us with any questions or 
+if you want us to walk you throught the code! 
+-The Vesi Team
+*/
+
+#include <SPI.h>
+#include <nRF24L01.h>
+#include <RF24.h>
+RF24 radio(9, 10); // CE, CSN
+const byte address[6] = "00001";
+boolean button_state = 0;
+#include <Wire.h>
+#include "Adafruit_DRV2605.h"
+Adafruit_DRV2605 drv;
+​int solenoidPin = 4;
+
+void setup() {
+pinMode(solenoidPin, OUTPUT);          
+pinMode(6, OUTPUT);
+Serial.begin(9600);
+radio.begin();
+radio.openReadingPipe(0, address);   
+radio.setPALevel(RF24_PA_MIN);       
+radio.startListening(); 
+drv.begin();
+drv.selectLibrary(1); 
+drv.setMode(DRV2605_MODE_INTTRIG); 
+}
+uint8_t effect = 1;
+void loop()
+{
+digitalWrite(solenoidPin, LOW);    
+delay(1000);  
+if (radio.available()) 
+{
+char text[5] = ""; /
+radio.read(&text, sizeof(text)); a
+if(text== "OPEN")
+{
+digitalWrite(solenoidPin, HIGH);    
+delay(1000);                     
+analogWrite(6, 120);
+Serial.println(text);
+}
+else{ 
+  digitalWrite(solenoidPin, LOW);    
+delay(1000);   
+}
+} 
+//Proudly written by The Vesi Team
